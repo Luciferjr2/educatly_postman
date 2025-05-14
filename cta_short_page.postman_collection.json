@@ -1,0 +1,1123 @@
+{
+	"info": {
+		"_postman_id": "119f4344-ffba-4db3-be7a-bbdc9263636b",
+		"name": "cta_short_page",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "37118285"
+	},
+	"item": [
+		{
+			"name": "commissionQualified",
+			"item": [
+				{
+					"name": "guestSignUp",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"let jsonData = pm.response.json();",
+									"let token = jsonData?.data?.guestSignUp?.access_token;",
+									"",
+									"if (token) {",
+									"    pm.environment.set(\"access_token\", token); // ✅ Environment-level",
+									"    pm.collectionVariables.set(\"access_token\", token); // ✅ Collection-level",
+									"    ",
+									"    console.log(\"Access token saved to environment and collection:\", token);",
+									"} else {",
+									"    console.error(\"No access token found in response:\", JSON.stringify(jsonData));",
+									"    pm.test(\"Access token exists\", function () {",
+									"        pm.expect(token, \"Token should not be null\").to.not.be.undefined;",
+									"    });",
+									"}"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"// Generate a random number to append to the email",
+									"const randomValue = Math.floor(Math.random() * 100000); // Change the range if needed",
+									"const uniqueEmail = `ahmad.yahea+${randomValue}@educatly.com`;",
+									"",
+									"// Set the unique email variable",
+									"pm.environment.set(\"userEmail\", uniqueEmail);",
+									"",
+									"// Function to generate a random phone number",
+									"function generateRandomPhoneNumber() {",
+									"    // Define valid prefixes",
+									"    const prefixes = [\"010\", \"011\", \"012\", \"015\"];",
+									"    // Select a random prefix from the list",
+									"    const prefix = prefixes[Math.floor(Math.random() * prefixes.length)];",
+									"    // Generate the remaining 8 digits",
+									"    let number = '';",
+									"    for (let i = 0; i < 8; i++) {",
+									"        number += Math.floor(Math.random() * 10); // Random digit from 0-9",
+									"    }",
+									"    return prefix + number; // Combine prefix and remaining digits",
+									"}",
+									"",
+									"// Set the random phone number variable",
+									"const randomPhoneNumber = generateRandomPhoneNumber();",
+									"pm.environment.set(\"userPhoneNumber\", randomPhoneNumber);",
+									"",
+									"eval(pm.sendRequest('https://cdn.jsdelivr.net/npm/faker@5.5.3/dist/faker.min.js', (err, res) => {",
+									"  if (!err) {",
+									"    eval(res.text());",
+									"    const userFirstName = faker.name.userFirstName();",
+									"    const userLastName = faker.name.userLastName();",
+									"  }",
+									"}));"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": " application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"operationName\": \"guestSignUp\",\n  \"query\": \"mutation guestSignUp($user: UserInput, $url: String!, $is_plugin_registration: Boolean) {\\n  guestSignUp(\\n    user: $user\\n    url: $url\\n    is_plugin_registration: $is_plugin_registration\\n  ) {\\n    email_verified_at\\n    access_token\\n    user_id\\n    __typename\\n  }\\n}\",\n  \"variables\": {\n    \"user\": {\n      \"email\": \"{{userEmail}}\",\n      \"first_name\": \"{{$randomFirstName}}\",\n      \"last_name\": \"{{$randomLastName}}\"\n    },\n    \"url\": \"{{url}}\",\n    \"is_plugin_registration\": false\n  }\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "https://staging-api.educatly.com/graphql",
+							"protocol": "https",
+							"host": [
+								"staging-api",
+								"educatly",
+								"com"
+							],
+							"path": [
+								"graphql"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "userGetByEmail",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"operationName\": \"userGetByEmail\",\n  \"query\": \"query userGetByEmail($email: String!) {\\n  userGetByEmail(email: $email) {\\n    first_name\\n    full_name\\n    last_name\\n    email\\n    role\\n    __typename\\n  }\\n}\",\n  \"variables\": {\n    \"email\": \"{{userEmail}}\"\n  }\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "https://staging-api.educatly.com/graphql",
+							"protocol": "https",
+							"host": [
+								"staging-api",
+								"educatly",
+								"com"
+							],
+							"path": [
+								"graphql"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "currentUserMutation",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"// Function to generate a random phone number",
+									"function generateRandomPhoneNumber() {",
+									"    // Define valid prefixes",
+									"    const prefixes = [\"010\", \"011\", \"012\", \"015\"];",
+									"    // Select a random prefix from the list",
+									"    const prefix = prefixes[Math.floor(Math.random() * prefixes.length)];",
+									"    // Generate the remaining 8 digits",
+									"    let number = '';",
+									"    for (let i = 0; i < 8; i++) {",
+									"        number += Math.floor(Math.random() * 10); // Random digit from 0-9",
+									"    }",
+									"    return prefix + number; // Combine prefix and remaining digits",
+									"}",
+									"",
+									"// Set the random phone number variable",
+									"const randomPhoneNumber = generateRandomPhoneNumber();",
+									"pm.environment.set(\"userPhoneNumber\", randomPhoneNumber);"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{access_token}}",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": " application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"operationName\": \"currentUserMutation\",\n  \"query\": \"mutation currentUserMutation($user: UserInput) {\\n  userUpdate(user: $user) {\\n    id\\n    __typename\\n  }\\n}\",\n  \"variables\": {\n    \"user\": {\n      \"nationalities\": {{nationalities}},\n      \"phone_number\": \"{{userPhoneNumber}}\",\n      \"dob\": \"22-10-2025\"\n    }\n  }\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "https://staging-api.educatly.com/graphql",
+							"protocol": "https",
+							"host": [
+								"staging-api",
+								"educatly",
+								"com"
+							],
+							"path": [
+								"graphql"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "applyProgramMutationCommissionQualified",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"let jsonData = pm.response.json();",
+									"let actualStatus = jsonData.data.programApply.status;",
+									"",
+									"if (actualStatus === \"Application request submitted\") {",
+									"    console.log(\"✅ App successfully submitted (Application request submitted)\");",
+									"    pm.test(\"✅ App successfully submitted (Application request submitted)\", function () {",
+									"        pm.expect(actualStatus).to.eql(\"Application request submitted\");",
+									"    });",
+									"} else {",
+									"    console.log(\"❌ Submission failed: Status was '\" + actualStatus + \"'\");",
+									"    pm.test(\"❌ Submission failed: Status was '\" + actualStatus + \"'\", function () {",
+									"        pm.expect(actualStatus).to.eql(\"Application request submitted\");",
+									"    });",
+									"}"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{access_token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "graphql",
+							"graphql": {
+								"query": "mutation applyProgramMutation($program_application: ProgramApplicationInput) {\n  programApply(program_application: $program_application) {\n    admitted_at\n    admitted_by\n    created_at\n    email\n    id\n    in_progress_at\n    motivation_letters {\n      id\n      url\n      filename\n      __typename\n    }\n    phone_country\n    phone_number\n    answer\n    application\n    rejected_at\n    status\n    user {\n      id\n      __typename\n    }\n    __typename\n  }\n}",
+								"variables": "{\n  \"program_application\": {\n    \"program_id\": 519676,\n    \"email\": \"{{userEmail}}\",\n    \"answer\": \"<h2>4906</h2><p>0</p><h2>4909</h2><p>0</p><h2>4910</h2><p>0</p><h2>4911</h2><p>0</p><h2>First Name</h2><p>{{first_name}}</p><h2>Last Name</h2><p>{{last_name}}</p><h2>Phone Number</h2><p>{{userPhoneNumber}}</p><h2>Email</h2><p>{{userEmail}}</p><h2>university_programs</h2><p>519676</p><h2>Date of birth</h2><p>04/05/2025</p>\\n    <h2>Nationality</h2><p>Albania</p>\",\n    \"application\": \"{\\\"4906\\\":0,\\\"4909\\\":0,\\\"4910\\\":0,\\\"4911\\\":0,\\\"First Name\\\":\\\"{{first_name}}\\\",\\\"Last Name\\\":\\\"{{last_name}}\\\",\\\"Phone Number\\\":\\\"{{userPhoneNumber}}\\\",\\\"Email\\\":\\\"{{userEmail}}\\\",\\\"Date of birth\\\":\\\"2025-05-03T21:00:00.000Z\\\",\\\"Nationality\\\":[6],\\\"university_programs\\\":519676}\"\n  }\n}"
+							}
+						},
+						"url": {
+							"raw": "https://staging-api.educatly.com/graphql",
+							"protocol": "https",
+							"host": [
+								"staging-api",
+								"educatly",
+								"com"
+							],
+							"path": [
+								"graphql"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "commission_disqualified",
+			"item": [
+				{
+					"name": "guestSignUp",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"let jsonData = pm.response.json();",
+									"let token = jsonData?.data?.guestSignUp?.access_token;",
+									"",
+									"if (token) {",
+									"    pm.environment.set(\"access_token\", token); // ✅ Environment-level",
+									"    pm.collectionVariables.set(\"access_token\", token); // ✅ Collection-level",
+									"    ",
+									"    console.log(\"Access token saved to environment and collection:\", token);",
+									"} else {",
+									"    console.error(\"No access token found in response:\", JSON.stringify(jsonData));",
+									"    pm.test(\"Access token exists\", function () {",
+									"        pm.expect(token, \"Token should not be null\").to.not.be.undefined;",
+									"    });",
+									"}"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"// Generate a random number to append to the email",
+									"const randomValue = Math.floor(Math.random() * 100000); // Change the range if needed",
+									"const uniqueEmail = `ahmad.yahea+${randomValue}@educatly.com`;",
+									"",
+									"// Set the unique email variable",
+									"pm.environment.set(\"userEmail\", uniqueEmail);",
+									"",
+									"// Function to generate a random phone number",
+									"function generateRandomPhoneNumber() {",
+									"    // Define valid prefixes",
+									"    const prefixes = [\"010\", \"011\", \"012\", \"015\"];",
+									"    // Select a random prefix from the list",
+									"    const prefix = prefixes[Math.floor(Math.random() * prefixes.length)];",
+									"    // Generate the remaining 8 digits",
+									"    let number = '';",
+									"    for (let i = 0; i < 8; i++) {",
+									"        number += Math.floor(Math.random() * 10); // Random digit from 0-9",
+									"    }",
+									"    return prefix + number; // Combine prefix and remaining digits",
+									"}",
+									"",
+									"// Set the random phone number variable",
+									"const randomPhoneNumber = generateRandomPhoneNumber();",
+									"pm.environment.set(\"userPhoneNumber\", randomPhoneNumber);",
+									"",
+									"eval(pm.sendRequest('https://cdn.jsdelivr.net/npm/faker@5.5.3/dist/faker.min.js', (err, res) => {",
+									"  if (!err) {",
+									"    eval(res.text());",
+									"    const userFirstName = faker.name.userFirstName();",
+									"    const userLastName = faker.name.userLastName();",
+									"  }",
+									"}));"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": " application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"operationName\": \"guestSignUp\",\n  \"query\": \"mutation guestSignUp($user: UserInput, $url: String!, $is_plugin_registration: Boolean) {\\n  guestSignUp(\\n    user: $user\\n    url: $url\\n    is_plugin_registration: $is_plugin_registration\\n  ) {\\n    email_verified_at\\n    access_token\\n    user_id\\n    __typename\\n  }\\n}\",\n  \"variables\": {\n    \"user\": {\n      \"email\": \"{{userEmail}}\",\n      \"first_name\": \"{{$randomFirstName}}\",\n      \"last_name\": \"{{$randomLastName}}\"\n    },\n    \"url\": \"{{url}}\",\n    \"is_plugin_registration\": false\n  }\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "https://staging-api.educatly.com/graphql",
+							"protocol": "https",
+							"host": [
+								"staging-api",
+								"educatly",
+								"com"
+							],
+							"path": [
+								"graphql"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "userGetByEmail",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"operationName\": \"userGetByEmail\",\n  \"query\": \"query userGetByEmail($email: String!) {\\n  userGetByEmail(email: $email) {\\n    first_name\\n    full_name\\n    last_name\\n    email\\n    role\\n    __typename\\n  }\\n}\",\n  \"variables\": {\n    \"email\": \"{{userEmail}}\"\n  }\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "https://staging-api.educatly.com/graphql",
+							"protocol": "https",
+							"host": [
+								"staging-api",
+								"educatly",
+								"com"
+							],
+							"path": [
+								"graphql"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "currentUserMutation",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"// Function to generate a random phone number",
+									"function generateRandomPhoneNumber() {",
+									"    // Define valid prefixes",
+									"    const prefixes = [\"010\", \"011\", \"012\", \"015\"];",
+									"    // Select a random prefix from the list",
+									"    const prefix = prefixes[Math.floor(Math.random() * prefixes.length)];",
+									"    // Generate the remaining 8 digits",
+									"    let number = '';",
+									"    for (let i = 0; i < 8; i++) {",
+									"        number += Math.floor(Math.random() * 10); // Random digit from 0-9",
+									"    }",
+									"    return prefix + number; // Combine prefix and remaining digits",
+									"}",
+									"",
+									"// Set the random phone number variable",
+									"const randomPhoneNumber = generateRandomPhoneNumber();",
+									"pm.environment.set(\"userPhoneNumber\", randomPhoneNumber);"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{access_token}}",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": " application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"operationName\": \"currentUserMutation\",\n  \"query\": \"mutation currentUserMutation($user: UserInput) {\\n  userUpdate(user: $user) {\\n    id\\n    __typename\\n  }\\n}\",\n  \"variables\": {\n    \"user\": {\n      \"nationalities\": \"6\",\n      \"phone_number\": \"{{userPhoneNumber}}\",\n      \"dob\": \"22-10-2025\"\n    }\n  }\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "https://staging-api.educatly.com/graphql",
+							"protocol": "https",
+							"host": [
+								"staging-api",
+								"educatly",
+								"com"
+							],
+							"path": [
+								"graphql"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "applyProgramMutationCommissionQualified",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"let jsonData = pm.response.json();",
+									"let actualStatus = jsonData.data.programApply.status;",
+									"",
+									"if (actualStatus === \"Disqualified application request\") {",
+									"    console.log(\"✅ App successfully submitted (but disqualified)\");",
+									"    pm.test(\"✅ App successfully submitted (but disqualified)\", function () {",
+									"        pm.expect(actualStatus).to.eql(\"Disqualified application request\");",
+									"    });",
+									"} else {",
+									"    console.log(\"❌ Unexpected application status: '\" + actualStatus + \"'\");",
+									"    pm.test(\"❌ Unexpected application status: '\" + actualStatus + \"'\", function () {",
+									"        pm.expect(actualStatus).to.eql(\"Disqualified application request\");",
+									"    });",
+									"}"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{access_token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "graphql",
+							"graphql": {
+								"query": "mutation applyProgramMutation($program_application: ProgramApplicationInput) {\n  programApply(program_application: $program_application) {\n    admitted_at\n    admitted_by\n    created_at\n    email\n    id\n    in_progress_at\n    motivation_letters {\n      id\n      url\n      filename\n      __typename\n    }\n    phone_country\n    phone_number\n    answer\n    application\n    rejected_at\n    status\n    user {\n      id\n      __typename\n    }\n    __typename\n  }\n}",
+								"variables": "{\n  \"program_application\": {\n    \"program_id\": 519676,\n    \"email\": \"{{userEmail}}\",\n    \"answer\": \"<h2>4906</h2><p>1</p><h2>4909</h2><p>1</p><h2>4910</h2><p>1</p><h2>4911</h2><p>1</p><h2>First Name</h2><p>{{first_name}}</p><h2>Last Name</h2><p>{{last_name}}</p><h2>Phone Number</h2><p>{{userPhoneNumber}}</p><h2>Email</h2><p>{{userEmail}}</p><h2>university_programs</h2><p>519676</p><h2>Date of birth</h2><p>04/05/2025</p>\\n    <h2>Nationality</h2><p>Albania</p>\",\n    \"application\": \"{\\\"4906\\\":1,\\\"4909\\\":1,\\\"4910\\\":1,\\\"4911\\\":1,\\\"First Name\\\":\\\"{{first_name}}\\\",\\\"Last Name\\\":\\\"{{last_name}}\\\",\\\"Phone Number\\\":\\\"{{userPhoneNumber}}\\\",\\\"Email\\\":\\\"{{userEmail}}\\\",\\\"Date of birth\\\":\\\"2025-05-03T21:00:00.000Z\\\",\\\"Nationality\\\":[6],\\\"university_programs\\\":519676}\"\n  }\n}"
+							}
+						},
+						"url": {
+							"raw": "https://staging-api.educatly.com/graphql",
+							"protocol": "https",
+							"host": [
+								"staging-api",
+								"educatly",
+								"com"
+							],
+							"path": [
+								"graphql"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "disqualified_marketing",
+			"item": [
+				{
+					"name": "guestSignUp",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"let jsonData = pm.response.json();",
+									"let token = jsonData?.data?.guestSignUp?.access_token;",
+									"",
+									"if (token) {",
+									"    pm.environment.set(\"access_token\", token); // ✅ Environment-level",
+									"    pm.collectionVariables.set(\"access_token\", token); // ✅ Collection-level",
+									"    ",
+									"    console.log(\"Access token saved to environment and collection:\", token);",
+									"} else {",
+									"    console.error(\"No access token found in response:\", JSON.stringify(jsonData));",
+									"    pm.test(\"Access token exists\", function () {",
+									"        pm.expect(token, \"Token should not be null\").to.not.be.undefined;",
+									"    });",
+									"}"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"// Generate a random number to append to the email",
+									"const randomValue = Math.floor(Math.random() * 100000); // Change the range if needed",
+									"const uniqueEmail = `ahmad.yahea+${randomValue}@educatly.com`;",
+									"",
+									"// Set the unique email variable",
+									"pm.environment.set(\"userEmail\", uniqueEmail);",
+									"",
+									"// Function to generate a random phone number",
+									"function generateRandomPhoneNumber() {",
+									"    // Define valid prefixes",
+									"    const prefixes = [\"010\", \"011\", \"012\", \"015\"];",
+									"    // Select a random prefix from the list",
+									"    const prefix = prefixes[Math.floor(Math.random() * prefixes.length)];",
+									"    // Generate the remaining 8 digits",
+									"    let number = '';",
+									"    for (let i = 0; i < 8; i++) {",
+									"        number += Math.floor(Math.random() * 10); // Random digit from 0-9",
+									"    }",
+									"    return prefix + number; // Combine prefix and remaining digits",
+									"}",
+									"",
+									"// Set the random phone number variable",
+									"const randomPhoneNumber = generateRandomPhoneNumber();",
+									"pm.environment.set(\"userPhoneNumber\", randomPhoneNumber);",
+									"",
+									"eval(pm.sendRequest('https://cdn.jsdelivr.net/npm/faker@5.5.3/dist/faker.min.js', (err, res) => {",
+									"  if (!err) {",
+									"    eval(res.text());",
+									"    const userFirstName = faker.name.userFirstName();",
+									"    const userLastName = faker.name.userLastName();",
+									"  }",
+									"}));"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": " application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"operationName\": \"guestSignUp\",\n  \"query\": \"mutation guestSignUp($user: UserInput, $url: String!, $is_plugin_registration: Boolean) {\\n  guestSignUp(\\n    user: $user\\n    url: $url\\n    is_plugin_registration: $is_plugin_registration\\n  ) {\\n    email_verified_at\\n    access_token\\n    user_id\\n    __typename\\n  }\\n}\",\n  \"variables\": {\n    \"user\": {\n      \"email\": \"{{userEmail}}\",\n      \"first_name\": \"{{$randomFirstName}}\",\n      \"last_name\": \"{{$randomLastName}}\"\n    },\n    \"url\": \"{{url}}\",\n    \"is_plugin_registration\": false\n  }\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "https://staging-api.educatly.com/graphql",
+							"protocol": "https",
+							"host": [
+								"staging-api",
+								"educatly",
+								"com"
+							],
+							"path": [
+								"graphql"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "userGetByEmail",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"operationName\": \"userGetByEmail\",\n  \"query\": \"query userGetByEmail($email: String!) {\\n  userGetByEmail(email: $email) {\\n    first_name\\n    full_name\\n    last_name\\n    email\\n    role\\n    __typename\\n  }\\n}\",\n  \"variables\": {\n    \"email\": \"{{userEmail}}\"\n  }\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "https://staging-api.educatly.com/graphql",
+							"protocol": "https",
+							"host": [
+								"staging-api",
+								"educatly",
+								"com"
+							],
+							"path": [
+								"graphql"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "currentUserMutation",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"// Function to generate a random phone number",
+									"function generateRandomPhoneNumber() {",
+									"    // Define valid prefixes",
+									"    const prefixes = [\"010\", \"011\", \"012\", \"015\"];",
+									"    // Select a random prefix from the list",
+									"    const prefix = prefixes[Math.floor(Math.random() * prefixes.length)];",
+									"    // Generate the remaining 8 digits",
+									"    let number = '';",
+									"    for (let i = 0; i < 8; i++) {",
+									"        number += Math.floor(Math.random() * 10); // Random digit from 0-9",
+									"    }",
+									"    return prefix + number; // Combine prefix and remaining digits",
+									"}",
+									"",
+									"// Set the random phone number variable",
+									"const randomPhoneNumber = generateRandomPhoneNumber();",
+									"pm.environment.set(\"userPhoneNumber\", randomPhoneNumber);"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{access_token}}",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": " application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"operationName\": \"currentUserMutation\",\n  \"query\": \"mutation currentUserMutation($user: UserInput) {\\n  userUpdate(user: $user) {\\n    id\\n    __typename\\n  }\\n}\",\n  \"variables\": {\n    \"user\": {\n      \"nationalities\": {{nationalities}},\n      \"phone_number\": \"{{userPhoneNumber}}\",\n      \"dob\": \"{{dob}}\"\n    }\n  }\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "https://staging-api.educatly.com/graphql",
+							"protocol": "https",
+							"host": [
+								"staging-api",
+								"educatly",
+								"com"
+							],
+							"path": [
+								"graphql"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "applyProgramMutationDisqualifiedMRKTG",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{access_token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "graphql",
+							"graphql": {
+								"query": "mutation universityCta($request: RequestInput, $answers: String, $user: UserInput, $user_preference: UserPreferenceInput) {\n  universityCta(\n    request: $request\n    answers: $answers\n    user: $user\n    user_preference: $user_preference\n  ) {\n    program {\n      hubspot_meeting_link\n      available_for_meeting\n      educational_institution {\n        available_for_meeting\n        __typename\n      }\n      __typename\n    }\n    answers\n    application\n    application_attachments {\n      filename\n      id\n      url\n      __typename\n    }\n    created_at\n    id\n    validated\n    user {\n      first_name\n      last_name\n      email\n      __typename\n    }\n    __typename\n  }\n}",
+								"variables": "{\n  \"request\": {\n    \"educational_institution_id\": 52487,\n    \"application\": \"<h2>4913</h2><p>1</p><h2>First Name</h2><p>{{first_name}}</p><h2>Last Name</h2><p>{{last_name}}</p><h2>Phone Number</h2><p>{{userPhoneNumber}}</p><h2>Email</h2><p>{{userEmail}}</p><h2>university_programs</h2><p>529956</p><h2>Date of birth</h2><p>02/05/2025</p>\\n    <h2>Nationality</h2><p>Afghanistan</p>\",\n    \"preferred_program_ids\": [\n      529956\n    ]\n  },\n  \"answers\": \"{\\\"4913\\\":1}\"\n}"
+							}
+						},
+						"url": {
+							"raw": "https://staging-api.educatly.com/graphql",
+							"protocol": "https",
+							"host": [
+								"staging-api",
+								"educatly",
+								"com"
+							],
+							"path": [
+								"graphql"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "qualified_marketing",
+			"item": [
+				{
+					"name": "guestSignUp",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"let jsonData = pm.response.json();",
+									"let token = jsonData?.data?.guestSignUp?.access_token;",
+									"",
+									"if (token) {",
+									"    pm.environment.set(\"access_token\", token); // ✅ Environment-level",
+									"    pm.collectionVariables.set(\"access_token\", token); // ✅ Collection-level",
+									"    ",
+									"    console.log(\"Access token saved to environment and collection:\", token);",
+									"} else {",
+									"    console.error(\"No access token found in response:\", JSON.stringify(jsonData));",
+									"    pm.test(\"Access token exists\", function () {",
+									"        pm.expect(token, \"Token should not be null\").to.not.be.undefined;",
+									"    });",
+									"}"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"// Generate a random number to append to the email",
+									"const randomValue = Math.floor(Math.random() * 100000); // Change the range if needed",
+									"const uniqueEmail = `ahmad.yahea+${randomValue}@educatly.com`;",
+									"",
+									"// Set the unique email variable",
+									"pm.environment.set(\"userEmail\", uniqueEmail);",
+									"",
+									"// Function to generate a random phone number",
+									"function generateRandomPhoneNumber() {",
+									"    // Define valid prefixes",
+									"    const prefixes = [\"010\", \"011\", \"012\", \"015\"];",
+									"    // Select a random prefix from the list",
+									"    const prefix = prefixes[Math.floor(Math.random() * prefixes.length)];",
+									"    // Generate the remaining 8 digits",
+									"    let number = '';",
+									"    for (let i = 0; i < 8; i++) {",
+									"        number += Math.floor(Math.random() * 10); // Random digit from 0-9",
+									"    }",
+									"    return prefix + number; // Combine prefix and remaining digits",
+									"}",
+									"",
+									"// Set the random phone number variable",
+									"const randomPhoneNumber = generateRandomPhoneNumber();",
+									"pm.environment.set(\"userPhoneNumber\", randomPhoneNumber);",
+									"",
+									"eval(pm.sendRequest('https://cdn.jsdelivr.net/npm/faker@5.5.3/dist/faker.min.js', (err, res) => {",
+									"  if (!err) {",
+									"    eval(res.text());",
+									"    const userFirstName = faker.name.userFirstName();",
+									"    const userLastName = faker.name.userLastName();",
+									"  }",
+									"}));"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": " application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"operationName\": \"guestSignUp\",\n  \"query\": \"mutation guestSignUp($user: UserInput, $url: String!, $is_plugin_registration: Boolean) {\\n  guestSignUp(\\n    user: $user\\n    url: $url\\n    is_plugin_registration: $is_plugin_registration\\n  ) {\\n    email_verified_at\\n    access_token\\n    user_id\\n    __typename\\n  }\\n}\",\n  \"variables\": {\n    \"user\": {\n      \"email\": \"{{userEmail}}\",\n      \"first_name\": \"{{$randomFirstName}}\",\n      \"last_name\": \"{{$randomLastName}}\"\n    },\n    \"url\": \"{{url}}\",\n    \"is_plugin_registration\": false\n  }\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "https://staging-api.educatly.com/graphql",
+							"protocol": "https",
+							"host": [
+								"staging-api",
+								"educatly",
+								"com"
+							],
+							"path": [
+								"graphql"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "userGetByEmail",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"operationName\": \"userGetByEmail\",\n  \"query\": \"query userGetByEmail($email: String!) {\\n  userGetByEmail(email: $email) {\\n    first_name\\n    full_name\\n    last_name\\n    email\\n    role\\n    __typename\\n  }\\n}\",\n  \"variables\": {\n    \"email\": \"{{userEmail}}\"\n  }\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "https://staging-api.educatly.com/graphql",
+							"protocol": "https",
+							"host": [
+								"staging-api",
+								"educatly",
+								"com"
+							],
+							"path": [
+								"graphql"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "currentUserMutation",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"// Function to generate a random phone number",
+									"function generateRandomPhoneNumber() {",
+									"    // Define valid prefixes",
+									"    const prefixes = [\"010\", \"011\", \"012\", \"015\"];",
+									"    // Select a random prefix from the list",
+									"    const prefix = prefixes[Math.floor(Math.random() * prefixes.length)];",
+									"    // Generate the remaining 8 digits",
+									"    let number = '';",
+									"    for (let i = 0; i < 8; i++) {",
+									"        number += Math.floor(Math.random() * 10); // Random digit from 0-9",
+									"    }",
+									"    return prefix + number; // Combine prefix and remaining digits",
+									"}",
+									"",
+									"// Set the random phone number variable",
+									"const randomPhoneNumber = generateRandomPhoneNumber();",
+									"pm.environment.set(\"userPhoneNumber\", randomPhoneNumber);"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{access_token}}",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": " application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"operationName\": \"currentUserMutation\",\n  \"query\": \"mutation currentUserMutation($user: UserInput) {\\n  userUpdate(user: $user) {\\n    id\\n    __typename\\n  }\\n}\",\n  \"variables\": {\n    \"user\": {\n      \"nationalities\": {{nationalities}},\n      \"phone_number\": \"{{userPhoneNumber}}\",\n      \"dob\": \"{{dob}}\"\n    }\n  }\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "https://staging-api.educatly.com/graphql",
+							"protocol": "https",
+							"host": [
+								"staging-api",
+								"educatly",
+								"com"
+							],
+							"path": [
+								"graphql"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "applyProgramMutationMRKTG",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{access_token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "graphql",
+							"graphql": {
+								"query": "mutation universityCta($request: RequestInput, $answers: String, $user: UserInput, $user_preference: UserPreferenceInput) {\n  universityCta(\n    request: $request\n    answers: $answers\n    user: $user\n    user_preference: $user_preference\n  ) {\n    program {\n      hubspot_meeting_link\n      available_for_meeting\n      educational_institution {\n        available_for_meeting\n        __typename\n      }\n      __typename\n    }\n    answers\n    application\n    application_attachments {\n      filename\n      id\n      url\n      __typename\n    }\n    created_at\n    id\n    validated\n    user {\n      first_name\n      last_name\n      email\n      __typename\n    }\n    __typename\n  }\n}",
+								"variables": "{\n  \"request\": {\n    \"educational_institution_id\": 54065,\n    \"application\": \"<h2>4901</h2>0<h2>4902</h2><p>0</p><h2>4907</h2><p>hi</p><h2>4908</h2><p>0</p><h2>First Name</h2><p>{{first_name}}</p><h2>Last Name</h2><p>{{first_name}}</p><h2>Phone Number</h2><p>{{userPhoneNumber}}</p><h2>Email</h2><p>{{userEmail}}</p><h2>university_programs</h2><p>529956</p><h2>Date of birth</h2><p>05/05/2025</p>\\n    <h2>Nationality</h2><p>Aland Islands</p>\",\n    \"preferred_program_ids\": [\n      529956\n    ]\n  },\n  \"answers\": \"{\\\"4901\\\":1,\\\"4902\\\":1,\\\"4907\\\":\\\"hi\\\",\\\"4908\\\":1}\"\n}"
+							}
+						},
+						"url": {
+							"raw": "https://staging-api.educatly.com/graphql",
+							"protocol": "https",
+							"host": [
+								"staging-api",
+								"educatly",
+								"com"
+							],
+							"path": [
+								"graphql"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "userFirstName",
+			"value": ""
+		},
+		{
+			"key": "userLastName",
+			"value": ""
+		},
+		{
+			"key": "userFullName",
+			"value": ""
+		},
+		{
+			"key": "userEmail",
+			"value": ""
+		},
+		{
+			"key": "access_token",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "nationalities",
+			"value": "6",
+			"type": "default"
+		},
+		{
+			"key": "dob",
+			"value": "20-10-2025",
+			"type": "default"
+		}
+	]
+}
